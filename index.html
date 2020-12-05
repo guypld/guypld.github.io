@@ -1,9 +1,23 @@
 <html>
 
 <head>
-	<link href="css/tabulator.min.css" rel="stylesheet">
+	
+	
+<link href="css/tabulator.min.css" rel="stylesheet">
 	<script type="text/javascript" src="js/tabulator.min.js"></script>
-	 <script id="scriptTablePrereqDateTimeSort" src="https://unpkg.com/moment/min/moment.min.js" type="text/javascript"></script>
+	 <script id="scriptTablePrereqDateTimeSort" src="js/moment.min.js" type="text/javascript"></script>
+	 
+	 <!--script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+	<!--script src="js/jquery.min.js" type="text/javascript"></script-->
+	<!--script src="js/bootstrap-datepicker.min.js" type="text/javascript"></script-->
+	
+	
+	    <!--script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+    <link id="bs-css" href="https://netdna.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet">
+    <link id="bsdp-css" href="https://unpkg.com/bootstrap-datepicker@1.9.0/dist/css/bootstrap-datepicker3.min.css" rel="stylesheet">
+	 <script src="https://unpkg.com/bootstrap-datepicker@1.9.0/dist/js/bootstrap-datepicker.min.js"></script-->
+
+	
 </head>
 
 <body>
@@ -20,6 +34,8 @@
 
 <script>
 //Create Date Editor
+
+
 var dateEditor = function(cell, onRendered, success, cancel, editorParams){
     //cell - the cell component for the editable cell
     //onRendered - function to call when the editor has been rendered
@@ -58,6 +74,54 @@ var dateEditor = function(cell, onRendered, success, cancel, editorParams){
     return editor;
 };
 
+/*
+var dateEditor = function (cell, onRendered, success, cancel, editorParams) {
+    //create and style input
+    //var editor = $("<input type='text'/>");
+	var editor = document.createElement("input");
+    // datepicker
+    editor.datepicker({
+        language: 'en',
+        format: 'dd/mm/yyyy',
+        autoclose: true,
+    }).on('changeDate', function() {
+        if(editorParams != 'row'){
+            editor.trigger('keyup');
+        }else{
+            editor.trigger('change');
+        }
+    });
+
+    editor.css({
+        "padding": "3px",
+        "width": "100%",
+        "height": "100%",
+        "box-sizing": "border-box",
+    });
+
+    editor.val(cell.getValue());
+
+    onRendered(function(){
+        editor.focus();
+    });
+
+    editor.on("blur", function (e) {
+        e.preventDefault();
+        if(editor.val() === '') {
+            success(cell.getValue());
+        }
+        else {
+            //submit new value on change
+            editor.on("change", function (e) {
+                success(editor.val());
+            });
+
+        }
+    });
+
+    return editor;
+}
+*/
 var tabledata = [ ];
 
 var isUpdating = false;
@@ -72,7 +136,24 @@ layout:"fitColumns",
 		{title:"סכום", field:"amount", editor:"number", headerSort:false, bottomCalc:"sum"},
 		{title:"חודש", field:"month", editor:dateEditor, headerSort:false},
 		{title:"תאריך", field:"date", editor:dateEditor, headerSort:false},
-		{title:"חישוב השוטף", field:"calc", headerSort:false},
+		{title:"חישוב השוטף", field:"calc", headerSort:false,
+			formatter: function(cell, formatterParams) {
+			
+			  
+			
+			
+			  var cellValue = cell.getValue();
+			  if (cellValue < 120) {
+				cell.getElement().style.backgroundColor = "#ffffff";
+				return cellValue;
+			  } else {
+				cell.getElement().style.backgroundColor = "#ff1111";
+				return cellValue;
+			  }
+			  
+			  return cellValue;
+			}
+		},
 		{title:"סכום*שוטף", field:"calcFinal", headerSort:false, bottomCalc:"sum"},
     ],
 	//reactiveData:true, //turn on data reactivity
@@ -105,7 +186,7 @@ layout:"fitColumns",
 		else {
 			document.getElementById("sum_span").innerHTML  = "NA";
 		}
-        console.log("UPDATE: " + JSON.stringify(tabledata));
+        //console.log("UPDATE: " + JSON.stringify(tabledata));
 		//console.log(JSON.stringify(data));
 		//console.log(JSON.stringify(data));
 		
@@ -121,7 +202,22 @@ document.getElementById("reactivity-add").addEventListener("click", function(){
 	for(var i = 0; i < tabledata.length; i++) {
 		tabledata[i].id = i + 1;
 	}
-    tabledata.push({id: tabledata.length + 1, amount: 0, month: "01/01/2020", date: "01/01/2020", calc: 0, calcFinal: 0});
+	
+	var today = new Date();
+	var dd = today.getDate();
+	var mm = today.getMonth()+1; 
+	var yyyy = today.getFullYear();
+	if(dd<10) 
+	{
+		dd='0'+dd;
+	} 
+	if(mm<10) 
+	{
+		mm='0'+mm;
+	} 
+	todayStr = dd+'/'+mm+'/'+yyyy;
+	
+    tabledata.push({id: tabledata.length + 1, amount: 0, month: todayStr, date: todayStr, calc: 0, calcFinal: 0});
 	table.setData(tabledata);
 	
 });
